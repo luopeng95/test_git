@@ -12,9 +12,12 @@ import '@/utils/flexible.js';
 
 import App from "./App.vue";
 import router from "@/routes";
+// 自定义的router
+import krouter from "@/krouter";
 import store from "@/store";
 import api from "@/api";
 import { getAndroidPermission } from "@/utils/utils";
+import VueRouter from "vue-router";
 
 Vue.prototype.$http = api;
 // Vue.prototype.$permission = getAndroidPermission(); // 安卓权限
@@ -26,7 +29,7 @@ Vue.filter('strip', function strip(num: number, precision: number = 12) {
 
 /* eslint-disable no-new */
 new Vue({
-  router,
+  router: krouter as VueRouter,
   store,
   render: (h: any) => h(App),
 }).$mount("#app");
