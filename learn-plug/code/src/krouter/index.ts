@@ -6,9 +6,20 @@
  * @FilePath: \deep-learing\components\src\routes\index.ts
  */
 import { Vue } from "vue-property-decorator";
-import Router from "./kvue-router";
+import KVueRouter from "./kvue-router";
 const config = require("../../config/index.json");
-Vue.use(Router);
+Vue.use(KVueRouter as any);
 
-const router = new Router();
+
+const router = new KVueRouter([
+  {
+    path: '/index',
+    name: 'index',
+    component: () => import('@/views/index/index.vue'),
+  },{
+    path: '/test',
+    name: 'test',
+    component: () => import('@/components/test.vue'),
+  },
+]);
 export default router

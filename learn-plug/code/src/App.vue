@@ -2,7 +2,8 @@
   <div id="app">
     <!-- <keep-alive :max='20'> -->
     <router-view></router-view>
-    <router-link></router-link>
+    <router-link to="/index">index</router-link>
+    <router-link to="/test">test</router-link>
     <!-- <router-view v-if="$route.meta.keepAlive" />
     </keep-alive>
     <router-view v-if="!$route.meta.keepAlive" /> -->

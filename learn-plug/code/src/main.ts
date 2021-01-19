@@ -29,7 +29,7 @@ Vue.filter('strip', function strip(num: number, precision: number = 12) {
 
 /* eslint-disable no-new */
 new Vue({
-  router: krouter as VueRouter,
+  router: krouter as any,
   store,
   render: (h: any) => h(App),
 }).$mount("#app");
