@@ -15,6 +15,7 @@ import router from "@/routes";
 // 自定义的router
 import krouter from "@/krouter";
 import store from "@/store";
+import kstore from "@/kstore";
 import api from "@/api";
 import { getAndroidPermission } from "@/utils/utils";
 import VueRouter from "vue-router";
@@ -30,7 +31,7 @@ Vue.filter('strip', function strip(num: number, precision: number = 12) {
 /* eslint-disable no-new */
 new Vue({
   router: krouter as any,
-  store,
+  store: kstore as any,
   render: (h: any) => h(App),
 }).$mount("#app");
 

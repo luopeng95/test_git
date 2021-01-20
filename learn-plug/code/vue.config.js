@@ -117,7 +117,7 @@ module.exports = {
             ]
           }),
           compilerOptions: {
-            module: "es2015"
+            module: "es6"
           }
         });
         return options;

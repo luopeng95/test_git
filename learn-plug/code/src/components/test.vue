@@ -19,11 +19,16 @@ import { Vue, Component, Watch, Prop } from "vue-property-decorator";
 })
 export default class testContainer extends Vue {
   /* Data */
+  private testValue: boolean = true;
   /* Hook */
   /* Watch */
   // @Prop() private a: number
   // @Prop() private b: number
   // @Prop() private c: number
+
+  private fun() {
+    console.log('测试privat');
+  }
 }
 </script>
 

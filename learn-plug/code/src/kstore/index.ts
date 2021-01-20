@@ -8,7 +8,22 @@ export default new Vuex.Store({
   state: {
     a: 1
   },
-  mutations: {},
-  actions: {},
-  getters: {},
+  mutations: {
+    add({state}: {state: any}) {
+      state.a++
+    },
+  },
+  actions: {
+    add({ state }: {state: any}) {
+      setTimeout(() => {
+        state.a++
+      }, 3000)
+    }
+  },
+  getters: {
+    testGet({ state }: {state: any}) {
+      console.log('执行getters：', state);
+      return state.a**2;
+    }
+  },
 });
