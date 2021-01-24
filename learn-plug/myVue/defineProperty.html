@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const app = document.getElementById('app');
+    // Vue中响应式的原理
+    function defineReactive(obj, key, val) {
+      // 先进行深度监听
+      observe(obj);
+
+      Object.defineProperty(obj, key, {
+        get() {
+          console.log('访问了get请求');
+          return val;
+        },
+        set(newVal) {
+          console.log('访问了set：', newVal);
+          if (val !== newVal) {
+            val = newVal;
+
+            // 如果新设置的值也是对象的话，需要再进行设置监听
+            observe(newVal);
+
+            // 执行更新 updater -- 将来真正做 DOM 操作的
+            update();
+          }
+        }
+      })
+    }
+
+    // 更新视图
+    function update() {
+      app.innerHTML = obj.foo;
+    }
+
+    // 深度监听
+    function observe(obj) {
+      if (typeof obj!== 'object' || obj === null) {
+        return;
+      }
+
+      Object.keys(obj).forEach(key => defineReactive(obj, key, obj[key]));
+    }
+
+    const obj = {};
+
+    defineReactive(obj, 'foo', new Date().toLocaleTimeString());
+
+    setInterval(()=>{
+      obj.foo = new Date().toLocaleTimeString();
+    }, 1000)
+  </script>
+</body>
+</html>
