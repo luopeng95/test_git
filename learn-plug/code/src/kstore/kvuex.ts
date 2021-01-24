@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-01-19 22:39:51
- * @LastEditTime: 2021-01-19 22:54:00
- * @LastEditors: your name
+ * @LastEditTime: 2021-01-20 23:13:34
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \deep-learing\learn-plug\code\src\kstore\kvuex.ts
  */
@@ -14,16 +14,16 @@ class Store {
   private _vm : any;    // 用来做私有变量
   private _mutations: any; // 存储传入的mutation
   private _actions: any;
-  private getters: any;
+  // private getters: any;
   constructor(options: any) {
     // 响应式的state
-    this._vm = new KVue({
-      data() {
-        return {
-          $$state: options.state
-        }
-      }
-    })
+    // this._vm = new KVue({
+    //   data() {
+    //     return {
+    //       $$state: options.state
+    //     }
+    //   }
+    // })
 
     // 保存mutation
     this._mutations = options.mutations;
@@ -42,21 +42,40 @@ class Store {
     }
 
     // 实现getters
-    this.getters = {};
+    // this.getters = {};
 
+    // for (let getter in options.getters) {
+    //   console.log('设置不同的getters：', options.getters[getter].call(store, store));
+    //   Object.defineProperty(this.getters, getter, {
+    //     get() {
+    //       console.log('执行get函数');
+    //       return options.getters[getter].call(store, store);
+    //     },
+    //     set(value) {
+    //       console.log('传入的新值：', value);
+    //       console.log('传入的this：', this);
+    //     }
+    //   })
+    // }
+
+    // 给getters添加缓存
+    const computed: any = {};
     for (let getter in options.getters) {
-      console.log('设置不同的getters：', options.getters[getter].call(store, store));
-      Object.defineProperty(this.getters, getter, {
-        get() {
-          console.log('执行get函数');
-          return options.getters[getter].call(store, store);
-        },
-        set(value) {
-          console.log('传入的新值：', value);
-          console.log('传入的this：', this);
-        }
-      })
+      computed[getter] = options.getters[getter].bind(store, store);
     }
+
+
+    this._vm = new KVue({
+      data() {
+        return {
+          $$state: options.state
+        }
+      },
+      computed,
+    })
+    
+
+
   };
 
   get state() {
@@ -65,6 +84,10 @@ class Store {
 
   set state(v) {
     console.error('不要直接修改state的值');
+  }
+
+  get getters() {
+    return this._vm;
   }
 
   // 定义commit方法去执行mutations里面定义的方法 -- 修改state里面的数据
