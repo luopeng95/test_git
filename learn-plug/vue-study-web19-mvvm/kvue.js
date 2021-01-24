@@ -195,8 +195,7 @@ class Watcher {
     this.updateFn = updateFn
 
     // 读一下当前key，触发依赖收集
-    Dep.target = this
-    vm[key]
+    Dep.target = this.vm[key]
     Dep.target = null
   }
 
