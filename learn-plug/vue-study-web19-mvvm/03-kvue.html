@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="app">
-    <p @click="add">{{obj.counter}}</p>
+    <p @click="add">{{ary}}</p>
     <p k-text="counter"></p>
     <p k-html="desc"></p>
     <input type="text" k-model="desc">
@@ -24,18 +24,20 @@
         desc: '<span style="color:red">kvue可还行？</span>',
         obj: {
           counter: 1,
-        }
+        },
+        ary: [1, 2, 3]
       },
       methods: {
         add() {
-          this.counter++
+          this.ary.push(0);
+          console.log('push之后的值：', this.ary);
         }
       },
     })
-    setInterval(() => {
-      app.counter++;
-      app.obj.counter++
-    }, 3000);
+    // setInterval(() => {
+    //   app.counter++;
+    //   app.obj.counter++
+    // }, 3000);
 
   </script>
 </body>

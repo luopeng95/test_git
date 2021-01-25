@@ -15,13 +15,13 @@ function defineReactive(obj, key, val) {
     const dep = new Dep();
     Object.defineProperty(obj, key, {
         get() {
-            console.log('访问了get请求');
+            // console.log('访问了get请求');
             // 判断当前是不是watcher发起的收集依赖请求
             Dep.target && dep.addWatcher(Dep.target);
             return val;
         },
         set(newVal) {
-            console.log('访问了set：', newVal);
+            // console.log('访问了set：', newVal);
             if (val !== newVal) {
                 val = newVal;
 
@@ -46,14 +46,14 @@ function observe(obj) {
 
 // 将$data中的key代理到KVue的实例上去
 // 代理函数
-function proxy(vm) {
-    Object.keys(vm.$data).forEach((key) => {
+function proxy(vm, data) {
+    Object.keys(data).forEach((key) => {
         Object.defineProperty(vm, key, {
             get() {
-                return vm.$data[key];
+                return data[key];
             },
             set(newVal) {
-                vm.$data[key] = newVal;
+                data[key] = newVal;
             },
         });
     });
@@ -70,7 +70,8 @@ class KVue {
         observe(this.$data);
 
         // 对this进行代理
-        proxy(this);
+        proxy(this, this.$data);
+        proxy(this, this.$options.methods);
 
         // 进行编译
         new Compile(this.$options.el, this);
@@ -109,10 +110,10 @@ class Compile {
     compile(el) {
         el.childNodes.forEach((node) => {
             if (this.isElement(node)) {
-                console.log('编译元素', node.nodeName);
+                // console.log('编译元素', node.nodeName);
                 this.compileElement(node);
             } else if (this.isInter(node)) {
-                console.log('编译插值表达式：', node.textContent);
+                // console.log('编译插值表达式：', node.textContent);
                 this.compileText(node);
             }
 
@@ -137,12 +138,17 @@ class Compile {
         Array.from(nodeAttrs).forEach((attr) => {
             const attrName = attr.name;
             const exp = attr.value;
-
+            // console.log('属性名字：', attrName);
             // 判断这个属性的类型
             if (this.isDirective(attrName)) {
-                const dir = attrName.substring(2);
+                let dir = attrName.substring(2);
+                const dirs = dir.split(':');
                 // 执行指令
-                this[dir] && this[dir](node, exp);
+                this[dirs[0]] && this[dirs[0]](node, exp, dirs[1]);
+            } else if (attrName.indexOf('@') === 0) {
+                // 判断是否是@绑定的事件
+                let eventName = attrName.substring(1);
+                this['on'] && this['on'](node, exp, eventName);
             }
         });
     }
@@ -170,6 +176,15 @@ class Compile {
     html(node, exp) {
         // node.innerHTML = this.$vm[exp];
         this.update(node, exp, 'html');
+    }
+
+    // on指令, node--节点元素，exp--事件的函数名字
+    on(node, exp, eventName) {
+        console.log('绑定事件');
+        // 先取到绑定的事件名字，再给元素绑定事件
+        console.log('取到的事件名字：', eventName, exp);
+        console.log(this.$vm[exp]);
+        node.addEventListener(eventName, this.$vm[exp].bind(this.$vm));
     }
 
     // 动态绑定创建更新函数以及对应实例 更新函数，收集依赖。
