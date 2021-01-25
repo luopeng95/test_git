@@ -11,9 +11,13 @@ function defineReactive(obj, key, val) {
     // 先进行深度监听
     observe(val);
 
+    // 创建dep
+    const dep = new Dep();
     Object.defineProperty(obj, key, {
         get() {
             console.log('访问了get请求');
+            // 判断当前是不是watcher发起的收集依赖请求
+            Dep.target && dep.addWatcher(Dep.target);
             return val;
         },
         set(newVal) {
@@ -24,8 +28,8 @@ function defineReactive(obj, key, val) {
                 // 如果新设置的值也是对象的话，需要再进行设置监听
                 observe(newVal);
 
-                // 执行更新 updater -- 将来真正做 DOM 操作的
-                // update();
+                // 通知watcher进行更新
+                dep.notify();
             }
         },
     });
@@ -99,14 +103,14 @@ class Compile {
         if (this.$el) {
             this.compile(this.$el);
         }
-        
     }
 
     // 编译方法 -- 接收一个根节点进行递归遍历，判断类型。
     compile(el) {
-        el.childNodes.forEach(node => {
+        el.childNodes.forEach((node) => {
             if (this.isElement(node)) {
                 console.log('编译元素', node.nodeName);
+                this.compileElement(node);
             } else if (this.isInter(node)) {
                 console.log('编译插值表达式：', node.textContent);
                 this.compileText(node);
@@ -116,7 +120,7 @@ class Compile {
             if (node.childNodes) {
                 this.compile(node);
             }
-        })
+        });
     }
 
     // 插值文本进行编译
@@ -130,17 +134,17 @@ class Compile {
     // 编译元素
     compileElement(node) {
         const nodeAttrs = node.attributes;
-        Array.from(nodeAttrs).forEach(attr => {
+        Array.from(nodeAttrs).forEach((attr) => {
             const attrName = attr.name;
             const exp = attr.value;
 
             // 判断这个属性的类型
             if (this.isDirective(attrName)) {
-                const dir = attrName.subString(2);
+                const dir = attrName.substring(2);
                 // 执行指令
                 this[dir] && this[dir](node, exp);
             }
-        })
+        });
     }
 
     // 判断一个节点是否是元素
@@ -175,9 +179,9 @@ class Compile {
         fn && fn(node, this.$vm[exp]);
 
         // 更新
-        new Watcher(this.$vm, exp, function() {
+        new Watcher(this.$vm, exp, function (val) {
             fn && fn(node, val);
-        })
+        });
     }
 
     // 文本更新实际操作的地方
@@ -197,11 +201,35 @@ class Watcher {
         this.vm = vm;
         this.key = key;
         this.updateFn = updateFn;
+
+        // 先设置一下Dep的target，对应在get中定义的Dep.target。然后再读一下值触发一下get方法进行依赖收集
+        Dep.target = this;
+        this.vm[this.key];
+        Dep.target = null;
     }
 
     // 管家调用
     update() {
         // 传入当前的最新值给更新函数
-        this.updateFn.call(this.vm, this.vm[this.key])
+        this.updateFn.call(this.vm, this.vm[this.key]);
+    }
+}
+
+class Dep {
+    constructor() {
+        this.watchers = [];
+    }
+
+    // 收集依赖
+    addWatcher(watcher) {
+        this.watchers.push(watcher);
+    }
+
+    // 执行更新
+    notify() {
+        this.watchers.forEach((watcher) => {
+            // 通知所有的watcher进行更新操作
+            watcher.update();
+        });
     }
 }
