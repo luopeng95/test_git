@@ -174,12 +174,19 @@ class Compile {
 
     // 动态绑定创建更新函数以及对应实例 更新函数，收集依赖。
     update(node, exp, dir) {
+        let that = this.$vm;
+        const keyArys = exp.split('.');
+        const length = keyArys.length - 1;
+        for (let i = 0; i < length; ++i) {
+            that = that[keyArys[i]];
+        }
+
         // 初始化
         const fn = this[dir + 'Updater'];
-        fn && fn(node, this.$vm[exp]);
+        fn && fn(node, that[keyArys[length]]);
 
         // 更新
-        new Watcher(this.$vm, exp, function (val) {
+        new Watcher(that, keyArys[length], function (val) {
             fn && fn(node, val);
         });
     }

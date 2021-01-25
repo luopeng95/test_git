@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="app">
-    <p @click="add">{{counter}}</p>
+    <p @click="add">{{obj.counter}}</p>
     <p k-text="counter"></p>
     <p k-html="desc"></p>
     <input type="text" k-model="desc">
@@ -21,7 +21,10 @@
       el:'#app',
       data: {
         counter: 1,
-        desc: '<span style="color:red">kvue可还行？</span>'
+        desc: '<span style="color:red">kvue可还行？</span>',
+        obj: {
+          counter: 1,
+        }
       },
       methods: {
         add() {
@@ -29,9 +32,10 @@
         }
       },
     })
-    // setInterval(() => {
-    //   app.counter++
-    // }, 1000);
+    setInterval(() => {
+      app.counter++;
+      app.obj.counter++
+    }, 3000);
 
   </script>
 </body>
