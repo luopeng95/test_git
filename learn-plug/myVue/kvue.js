@@ -7,6 +7,22 @@
  * @FilePath: \deep-learing\learn-plug\myVue\kvue.js
  */
 // Vue中响应式的原理
+
+// 数组响应式
+// 1.替换原数组原型上的七个方法
+const originalProto = Array.prototype;
+const arrayProto = Object.create(originalProto);
+
+['push', 'pop', 'shift', 'unshift'].forEach((method) => {
+    arrayProto[method] = function () {
+        // 原始操作
+        originalProto[method].apply(this, arguments);
+        // 覆盖操作：通知更新
+        console.log('数组执行 ' + method + '操作:');
+    };
+});
+
+// 对象响应式
 function defineReactive(obj, key, val) {
     // 先进行深度监听
     observe(val);
@@ -41,7 +57,18 @@ function observe(obj) {
         return;
     }
 
-    new Observer(obj);
+    // 判断传入的obj类型
+    if (Array.isArray(obj)) {
+        // 覆盖原型，替换变更操作
+        obj.__proto__ = arrayProto;
+        // 对数组内部原因执行响应化
+        const keys = Object.keys(obj);
+        for (let i = 0; i < keys.length; ++i) {
+            observe(obj[i]);
+        }
+    } else {
+        new Observer(obj);
+    }
 }
 
 // 将$data中的key代理到KVue的实例上去
